@@ -1005,7 +1005,7 @@
   // login de teste: SÓ funciona rodando em localhost/127.0.0.1 (no domínio publicado não existe)
   var LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
   var TESTE = LOCAL ? { 'teste@guiasdecontas.com': ['guias'], 'varios@guiasdecontas.com': ['guias', 'guias-varios'],
-    'bumps@guiasdecontas.com': ['guias', 'guias-bump-fundamentos', 'guias-bump-oracoes', 'guias-bump-dicionario'] } : {};
+    'bumps@guiasdecontas.com': ['guias', 'guias-bump-orixas', 'guias-bump-fundamentos', 'guias-bump-oracoes', 'guias-bump-dicionario'] } : {};
   var CHAVE_EMAIL = 'cc:email', CHAVE_ITENS = 'cc:itens', CHAVE_PERFIL = 'cc:perfil';
   function g(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function s(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
@@ -1032,7 +1032,7 @@
       if (prod[k]) return;
       var liberado = (k === 'principal' && (meus.indexOf(ITEM) >= 0 || (ACEITA_QUALQUER_COMPRA && meus.length > 0))) ||
         (k === 'bonus' && meus.indexOf(ITEM_BONUS) >= 0) ||
-        (p.tipo === 'extra' && !!p.item && meus.indexOf(p.item) >= 0);
+        (p.tipo === 'extra' && ((!!p.item && meus.indexOf(p.item) >= 0) || (!!p.comGuias && meus.indexOf(ITEM) >= 0)));
       prod[k] = { liberado: liberado, embreve: !!p.embreve, pasta: liberado && !(p.tipo === 'extra' && p.embreve) ? '/assets/livros/' + k + '/' : null };
     });
     var pf = perfil();
@@ -1129,14 +1129,19 @@ var CATALOGO = [
   { id: 'b3', dono: 'bonus', tipo: 'bonus', embreve: true, titulo: 'Como Precificar e Vender Suas Guias', desc: 'Preço, onde vender e como apresentar as peças.' },
   { id: 'b4', dono: 'bonus', tipo: 'bonus', embreve: true, titulo: 'Guia de Erros, Ajustes e Reparos', desc: 'Os erros mais comuns e como consertar cada um.' },
   // order bumps do checkout (26/10): "item" = o que o webhook grava. Conteúdo ainda não existe (embreve):
-  // quem comprou vê em "Em preparação pra você"; quem não comprou vê com cadeado em "Complete sua coleção"
-  { id: 'fundamentos', tipo: 'extra', pronto: true, embreve: true, item: 'guias-bump-fundamentos', titulo: 'Fundamentos e Consagração das Guias', meta: 'Em preparação', venda: '', preco: '',
+  // quem tem acesso vê em "Em preparação pra você"; quem não tem vê com cadeado em "Complete sua coleção".
+  // comGuias: POR ENQUANTO (decisão do Heitor, 26/10) toda compra das Guias ("guias") libera todos os bumps,
+  // até os conteúdos ficarem prontos. Para cobrar cada bump à parte, tirar o comGuias.
+  { id: 'orixas', tipo: 'extra', pronto: true, embreve: true, comGuias: true, item: 'guias-bump-orixas', titulo: 'Guia dos Orixás e Entidades Ilustrado', meta: 'Em preparação', venda: '', preco: '',
+    desc: 'Orixás, linhas e entidades num guia ilustrado.',
+    inclui: ['Adicional da compra das Guias de Contas', 'Em preparação: entra aqui no app assim que ficar pronto'] },
+  { id: 'fundamentos', tipo: 'extra', pronto: true, embreve: true, comGuias: true, item: 'guias-bump-fundamentos', titulo: 'Fundamentos e Consagração das Guias', meta: 'Em preparação', venda: '', preco: '',
     desc: 'Os fundamentos das guias e a consagração, com respeito a cada tradição.',
     inclui: ['Adicional da compra das Guias de Contas', 'Em preparação: entra aqui no app assim que ficar pronto'] },
-  { id: 'oracoes', tipo: 'extra', pronto: true, embreve: true, item: 'guias-bump-oracoes', titulo: '50 Orações e Preces de Umbanda', meta: 'Em preparação', venda: '', preco: '',
+  { id: 'oracoes', tipo: 'extra', pronto: true, embreve: true, comGuias: true, item: 'guias-bump-oracoes', titulo: '50 Orações e Preces de Umbanda', meta: 'Em preparação', venda: '', preco: '',
     desc: '50 orações e preces de Umbanda num material só.',
     inclui: ['Adicional da compra das Guias de Contas', 'Em preparação: entra aqui no app assim que ficar pronto'] },
-  { id: 'dicionario', tipo: 'extra', pronto: true, embreve: true, item: 'guias-bump-dicionario', titulo: 'Dicionário da Umbanda - 100 Termos Explicados', meta: 'Em preparação', venda: '', preco: '',
+  { id: 'dicionario', tipo: 'extra', pronto: true, embreve: true, comGuias: true, item: 'guias-bump-dicionario', titulo: 'Dicionário da Umbanda - 100 Termos Explicados', meta: 'Em preparação', venda: '', preco: '',
     desc: '100 termos da Umbanda explicados.',
     inclui: ['Adicional da compra das Guias de Contas', 'Em preparação: entra aqui no app assim que ficar pronto'] },
   // upsell: material pronto (6 páginas), ainda sem venda no app: aparece com cadeado e "Em breve"
