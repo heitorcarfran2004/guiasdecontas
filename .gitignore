@@ -3,3 +3,6 @@ node_modules/
 *.log
 referencia/
 supabase/
+
+.vercel
+.env*
