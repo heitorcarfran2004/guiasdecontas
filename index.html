@@ -1106,6 +1106,8 @@
 // R$ 9,90 pay.wiapy.com/pSTsOBtu_xr). Plano único: toda compra grava o item "guias", que abre a
 // apostila e os bônus. O upsell de vários fios ("guias-varios") ainda não é vendido.
 var VENDA = '';
+// checkouts próprios do app na Wiapy (29/10): bumps pelo dobro e Trançadas a R$ 19,90. Vazio = "Ainda não está à venda".
+var VENDA_APP = { orixas: '', fundamentos: '', oracoes: '', dicionario: '', trancadas: '' };
 
 // livros: páginas pag-001.webp… dentro da pasta; w/h = tamanho das páginas (o leitor reserva o espaço certo)
 var LIVROS = {
@@ -1138,24 +1140,30 @@ var CATALOGO = [
   { id: 'b3', dono: 'bonus', tipo: 'bonus', titulo: 'Como Precificar e Vender Suas Guias', desc: 'Preço, onde vender e como apresentar as peças.' },
   { id: 'b4', dono: 'bonus', tipo: 'bonus', titulo: 'Guia de Erros, Ajustes e Reparos', desc: 'Os erros mais comuns e como consertar cada um.' },
   // order bumps do checkout (26/10; conteúdo pronto em 29/10): "item" = o que o webhook grava.
-  // comGuias: POR ENQUANTO (decisão do Heitor, 26/10) toda compra das Guias ("guias") libera todos os bumps.
-  // Para cobrar cada bump à parte, tirar o comGuias.
-  { id: 'orixas', tipo: 'extra', pronto: true, comGuias: true, item: 'guias-bump-orixas', titulo: 'Guia dos Orixás e Entidades Ilustrado', meta: '24 páginas', venda: '', preco: '',
+  // Cada um libera só para quem comprou (decisão do Heitor em 29/10). No app, o desbloqueio custa o
+  // DOBRO do preço do checkout, pelo checkout próprio de cada um (venda = link pay.wiapy.com).
+  { id: 'orixas', tipo: 'extra', pronto: true, item: 'guias-bump-orixas', titulo: 'Guia dos Orixás e Entidades Ilustrado', meta: '24 páginas', venda: VENDA_APP.orixas, preco: '9,80',
     desc: 'Uma página ilustrada por orixá e por linha, com a guia nas cores dele.',
     inclui: ['13 orixás e 10 linhas da Umbanda','A guia nas cores de cada um','Cores, elemento, dia e saudação','Os modelos da apostila de cada orixá'] },
-  { id: 'fundamentos', tipo: 'extra', pronto: true, comGuias: true, item: 'guias-bump-fundamentos', titulo: 'Fundamentos e Consagração das Guias', meta: '10 páginas', venda: '', preco: '',
+  { id: 'fundamentos', tipo: 'extra', pronto: true, item: 'guias-bump-fundamentos', titulo: 'Fundamentos e Consagração das Guias', meta: '10 páginas', venda: VENDA_APP.fundamentos, preco: '11,80',
     desc: 'O que é a guia, para que serve, quem pode usar e os cuidados, com respeito a cada tradição.',
     inclui: ['O que é a guia e para que serve','Confecção não é consagração','Cuidados do dia a dia','Quando a guia arrebenta ou se perde'] },
-  { id: 'oracoes', tipo: 'extra', pronto: true, comGuias: true, item: 'guias-bump-oracoes', titulo: '50 Orações e Preces de Umbanda', meta: '15 páginas', venda: '', preco: '',
+  { id: 'oracoes', tipo: 'extra', pronto: true, item: 'guias-bump-oracoes', titulo: '50 Orações e Preces de Umbanda', meta: '15 páginas', venda: VENDA_APP.oracoes, preco: '11,80',
     desc: 'Orações de abertura, preces da gira, aos orixás, às linhas e do dia a dia.',
     inclui: ['7 orações de domínio público, como a Prece de Cáritas','Preces aos orixás e às linhas','Preces da gira e do dia a dia'] },
-  { id: 'dicionario', tipo: 'extra', pronto: true, comGuias: true, item: 'guias-bump-dicionario', titulo: 'Dicionário da Umbanda - 100 Termos Explicados', meta: '12 páginas', venda: '', preco: '',
+  { id: 'dicionario', tipo: 'extra', pronto: true, item: 'guias-bump-dicionario', titulo: 'Dicionário da Umbanda - 100 Termos Explicados', meta: '12 páginas', venda: VENDA_APP.dicionario, preco: '9,80',
     desc: '100 termos que você ouve no terreiro, de abebé a zelador, explicados em poucas linhas.',
     inclui: ['100 termos em ordem alfabética','Definições curtas e diretas','As diferenças entre as casas, quando existem'] },
-  // upsell: material pronto (6 páginas), ainda sem venda no app: aparece com cadeado e "Em breve"
-  { id: 'varios', tipo: 'extra', pronto: true, item: 'guias-varios', titulo: 'Guias de Vários Fios', meta: '3 modelos · 6 páginas', venda: '', preco: '',
+  // upsell do funil (29/10): 30 Projetos de Guias Trançadas, R$ 19,90 (upsell 6ae0169…, downsell 6ae017c…
+  // e o checkout próprio do app gravam "guias-trancadas"). O material ainda está em produção (embreve):
+  // quem comprou vê "Acesso garantido"; quem não comprou garante o seu pelo checkout do app.
+  { id: 'trancadas', tipo: 'extra', pronto: false, embreve: true, item: 'guias-trancadas', titulo: '30 Projetos de Guias Trançadas', meta: 'Em produção', venda: VENDA_APP.trancadas, preco: '19,90',
+    desc: 'Guias de vários fios trançados, unindo as cores de mais de um orixá ou linha, no mesmo formato da apostila.',
+    inclui: ['30 projetos de guias trançadas', 'Materiais com a quantidade exata de cada conta', 'A trança passo a passo, com fotos', 'Entra aqui no app assim que ficar pronto, e você recebe o aviso'] }
+  // (o upsell antigo de vários fios, 6 páginas em LIVROS.varios, saiu da vitrine em 29/10)
+  /* { id: 'varios', tipo: 'extra', pronto: true, item: 'guias-varios', titulo: 'Guias de Vários Fios', meta: '3 modelos · 6 páginas', venda: '', preco: '',
     desc: 'Guias de dois e de três fios paralelos, no mesmo formato da apostila.',
-    inclui: ['Dois fios paralelos: modelos A e B', 'Três fios paralelos', 'O modelo e a montagem passo a passo de cada um'] }
+    inclui: ['Dois fios paralelos: modelos A e B', 'Três fios paralelos', 'O modelo e a montagem passo a passo de cada um'] } */
 ];
 var BONUS_PACOTE = { titulo: 'Os 4 bônus', venda: '', preco: '',
   desc: 'Vêm junto com a coleção: abra cada um aqui no app ou baixe o PDF.',
@@ -1775,7 +1783,13 @@ if ('serviceWorker' in navigator) {
    aulas novas e os convites pra instalar o app e ativar as notificações.
    Cartão de oferta: no máximo 2 por dia, 4 h entre um e outro, só no Início, nunca logo na entrada (60 s),
    nunca com leitor, ficha ou sininho abertos. Estado por e-mail no aparelho (localStorage). */
-var OF = {};
+var OF = {
+  trancadas: { tit: '30 Projetos de Guias Trançadas', txt: 'Una as cores de mais de um orixá numa guia só, com a trança passo a passo.', capa: 'trancadas' },
+  orixas: { tit: 'Guia dos Orixás e Entidades Ilustrado', txt: 'Uma página ilustrada por orixá e por linha, com a guia nas cores de cada um.', capa: 'orixas' },
+  oracoes: { tit: '50 Orações e Preces de Umbanda', txt: 'Orações de abertura, preces da gira e preces a cada orixá e linha.', capa: 'oracoes' },
+  fundamentos: { tit: 'Fundamentos e Consagração das Guias', txt: 'O que é a guia, quem pode usar e os cuidados, com respeito a cada casa.', capa: 'fundamentos' },
+  dicionario: { tit: 'Dicionário da Umbanda – 100 Termos', txt: 'De abebé a zelador: os termos que você ouve no terreiro, explicados.', capa: 'dicionario' }
+};
 var OFERTA_MAX_DIA = 2, OFERTA_INTERVALO = 4 * 3600e3, OFERTA_ESPERA = 60e3;
 
 var NV = (function () {
