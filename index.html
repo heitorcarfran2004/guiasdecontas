@@ -247,6 +247,25 @@
   .sec-tit .cont{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--texto-3);white-space:nowrap}
   .sec-tit .cont a{color:var(--roxo);text-decoration:none}
   .sec-sub{font-size:13.5px;color:var(--texto-2);margin:-8px 0 13px}
+  /* banner das Trançadas (29/10): a oferta com mais foco de venda no app */
+  .trancadas{position:relative;display:grid;grid-template-columns:1.3fr .7fr;min-height:214px;border-radius:22px;overflow:hidden;
+    background:radial-gradient(120% 140% at 0% 0%,#2C5140 0%,#1F3A2C 55%,#16291F 100%);color:#F8F5EC;box-shadow:0 14px 34px -18px rgba(20,40,28,.7)}
+  .trancadas::after{content:"";position:absolute;inset:7px;border:1px solid rgba(198,161,91,.38);border-radius:17px;pointer-events:none}
+  .trancadas .tx{position:relative;z-index:2;padding:20px 4px 18px 20px;display:flex;flex-direction:column;align-items:flex-start}
+  .trancadas .selo-ex{display:inline-flex;align-items:center;gap:6px;background:#C6A15B;color:#1F3A2C;font-size:9.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;border-radius:99px;padding:5px 9px;white-space:nowrap}
+  .trancadas h3{font-family:'Playfair Display',Georgia,serif;font-size:26px;line-height:1.08;margin:10px 0 6px;color:#fff}
+  .trancadas h3 b{color:#E4C989;font-weight:700}
+  .trancadas p{font-size:13px;line-height:1.45;color:#D9E2DB;margin:0 0 12px}
+  .trancadas .preco{font-size:12px;color:#C9D3CC;margin-bottom:10px}
+  .trancadas .preco b{display:block;font-size:24px;color:#E4C989;font-variant-numeric:lining-nums;line-height:1.1}
+  .trancadas .cta{display:inline-flex;align-items:center;gap:6px;background:#C6A15B;color:#1F3A2C;text-decoration:none;font-weight:900;font-size:13.5px;border-radius:12px;padding:11px 14px;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(198,161,91,.8)}
+  .trancadas .det{background:none;border:0;color:#D9E2DB;font-size:12px;text-decoration:underline;margin-top:8px;padding:0;cursor:pointer}
+  .trancadas .fotos{position:relative}
+  .trancadas .fotos img{position:absolute;width:86%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;border:3px solid #F8F5EC;box-shadow:0 10px 22px -8px rgba(0,0,0,.6)}
+  .trancadas .fotos img:nth-child(1){right:4%;top:7%;transform:rotate(6deg);z-index:1}
+  .trancadas .fotos img:nth-child(2){right:24%;top:26%;width:72%;transform:rotate(-7deg);z-index:2}
+  .trancadas .fotos img:nth-child(3){right:3%;bottom:7%;width:66%;transform:rotate(3deg);z-index:3}
+  @media(max-width:380px){.trancadas h3{font-size:22px}.trancadas .tx{padding-left:16px}}
 
   /* produto principal (destaque da coleção) */
   .principal{display:grid;grid-template-columns:1.1fr 1fr;background:var(--branco);border:1px solid var(--linha);border-radius:24px;overflow:hidden;box-shadow:var(--sombra-2)}
@@ -852,6 +871,19 @@
         <p class="sec-sub">Você já comprou. O material entra aqui assim que ficar pronto, e a gente te avisa.</p>
         <div class="breve-lista" id="prep"></div>
       </section>
+      <section class="sec" id="s-trancadas" hidden>
+        <div class="trancadas">
+          <div class="tx">
+            <span class="selo-ex">✦ Exclusivo pra membros</span>
+            <h3>Guias <b>Trançadas</b></h3>
+            <p>30 projetos de guias de vários fios, unindo as cores de mais de um orixá numa guia só.</p>
+            <div class="preco">Preço de membro<b>R$ 19,90</b></div>
+            <a class="cta" id="tr-cta" href="#" target="_blank" rel="noopener">Quero as Trançadas →</a>
+            <button class="det" type="button" data-produto="trancadas">Ver o que vem</button>
+          </div>
+          <div class="fotos" aria-hidden="true"><img src="/assets/trancadas/t3.webp" alt="" loading="lazy"><img src="/assets/trancadas/t1.webp" alt="" loading="lazy"><img src="/assets/trancadas/t5.webp" alt="" loading="lazy"></div>
+        </div>
+      </section>
       <section class="sec" id="s-mais" hidden>
         <div class="sec-tit"><h2>Complete sua coleção</h2><span class="cont">pra membros</span></div>
         <p class="sec-sub">Materiais extras para membros.</p>
@@ -1268,6 +1300,9 @@ function desenharInicio() {
   // complete sua coleção: tudo o que a pessoa ainda não tem (os prontos primeiro; os em produção entram na fila de espera ao comprar)
   var mais = CATALOGO.filter(function (p) { return !estado(p).liberado && (p.tipo === 'aulas' || p.tipo === 'principal' || p.tipo === 'extra'); });
   mais = mais.filter(function (p) { return p.tipo !== 'extra' || p.pronto; }).concat(mais.filter(function (p) { return p.tipo === 'extra' && !p.pronto; }));
+  var tr = produto('trancadas'), comBanner = !!(tr && tr.venda && !estado(tr).liberado);
+  $('s-trancadas').hidden = !comBanner;
+  if (comBanner) { $('tr-cta').href = tr.venda; mais = mais.filter(function (p) { return p.id !== 'trancadas'; }); }
   $('mais').innerHTML = mais.map(function (p) {
     var fita = p.tipo === 'aulas' ? '<span class="fita">Videoaulas</span>' : p.novo ? '<span class="fita verde">Novo</span>' : '';
     var sub = p.meta || (p.tipo === 'extra' && !p.pronto ? 'Garanta o seu' : '');
