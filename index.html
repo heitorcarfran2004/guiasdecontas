@@ -1029,14 +1029,16 @@
   var VAPID_PUBLICO = 'BL3VPB_YP8gLJ-W95Q-EtBt_OzhCRBJjqQbyJ4mOJlkj1P_XXyspKsPYMsOnJegixdzDKlggt_O6MVN_USlBC9c';
   // item que o webhook da venda grava em membros_compras para liberar a apostila (e os bônus: plano único)
   var ITEM = 'guias';
+  // Plano Básico R$ 17,90 (13/11): checkout próprio, o webhook grava "guias-basico" = só a apostila.
+  var ITEM_BASICO = 'guias-basico';
   // com true, qualquer compra registrada entra (só para teste; fica false)
   var ACEITA_QUALQUER_COMPRA = false;
-  // os bônus vêm com a apostila (não existe Básico x Completo nas guias)
+  // os bônus só vêm com "guias" (Plano Completo R$ 27,90 e todas as compras antigas, que levaram os bônus)
   var ITEM_BONUS = 'guias';
   // os extras (order bumps e o upsell) liberam pelo campo "item" de cada um no CATALOGO
   // login de teste: SÓ funciona rodando em localhost/127.0.0.1 (no domínio publicado não existe)
   var LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
-  var TESTE = LOCAL ? { 'teste@guiasdecontas.com': ['guias'], 'varios@guiasdecontas.com': ['guias', 'guias-varios'],
+  var TESTE = LOCAL ? { 'teste@guiasdecontas.com': ['guias'], 'basico@guiasdecontas.com': ['guias-basico'], 'varios@guiasdecontas.com': ['guias', 'guias-varios'],
     'bumps@guiasdecontas.com': ['guias', 'guias-bump-orixas', 'guias-bump-fundamentos', 'guias-bump-oracoes', 'guias-bump-dicionario'] } : {};
   var CHAVE_EMAIL = 'cc:email', CHAVE_ITENS = 'cc:itens', CHAVE_PERFIL = 'cc:perfil';
   function g(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -1062,7 +1064,7 @@
     (window.CATALOGO || []).forEach(function (p) {
       var k = p.dono || p.id;
       if (prod[k]) return;
-      var liberado = (k === 'principal' && (meus.indexOf(ITEM) >= 0 || (ACEITA_QUALQUER_COMPRA && meus.length > 0))) ||
+      var liberado = (k === 'principal' && (meus.indexOf(ITEM) >= 0 || meus.indexOf(ITEM_BASICO) >= 0 || (ACEITA_QUALQUER_COMPRA && meus.length > 0))) ||
         (k === 'bonus' && meus.indexOf(ITEM_BONUS) >= 0) ||
         (p.tipo === 'extra' && ((!!p.item && meus.indexOf(p.item) >= 0) || (!!p.comGuias && meus.indexOf(ITEM) >= 0)));
       prod[k] = { liberado: liberado, embreve: !!p.embreve, pasta: liberado && !(p.tipo === 'extra' && p.embreve) ? '/assets/livros/' + k + '/' : null };
@@ -1087,7 +1089,7 @@
         .then(function (r) { return r.ok ? r.json() : { itens: [] }; })
         .then(function (d) {
           var lista = d.itens || [];
-          var vale = lista.indexOf(ITEM) >= 0 || (ACEITA_QUALQUER_COMPRA && lista.length > 0);
+          var vale = lista.indexOf(ITEM) >= 0 || lista.indexOf(ITEM_BASICO) >= 0 || (ACEITA_QUALQUER_COMPRA && lista.length > 0);
           if (!vale) return json({ ok: false, erro: 'naocomprou' });
           s(CHAVE_EMAIL, email); s(CHAVE_ITENS, JSON.stringify(lista));
           preencherPerfil(email, d.nome, d.telefone);
@@ -1198,9 +1200,10 @@ var CATALOGO = [
     desc: 'Guias de dois e de três fios paralelos, no mesmo formato da apostila.',
     inclui: ['Dois fios paralelos: modelos A e B', 'Três fios paralelos', 'O modelo e a montagem passo a passo de cada um'] } */
 ];
-var BONUS_PACOTE = { titulo: 'Os 4 bônus', venda: '', preco: '',
-  desc: 'Vêm junto com a coleção: abra cada um aqui no app ou baixe o PDF.',
-  inclui: ['Guia Completo de Materiais e Componentes', 'Guia Completo dos Orixás e Entidades', 'Como Precificar e Vender Suas Guias', 'Guia de Erros, Ajustes e Reparos'] };
+// venda: link de upgrade do Plano Básico para os bônus (ainda não existe; vazio = "Ainda não está à venda aqui no app")
+var BONUS_PACOTE = { titulo: 'Os 5 bônus do Plano Completo', venda: '', preco: '',
+  desc: 'Vêm no Plano Completo: abra cada um aqui no app ou baixe o PDF.',
+  inclui: ['Guia Completo de Materiais e Componentes', 'Guia Completo dos Orixás e Entidades', 'Como Precificar e Vender Suas Guias', 'Guia de Erros, Ajustes e Reparos', 'Pulseiras dos Orixás em Miçanga: 50 modelos'] };
 var TEXTOS = {};
 
 function $(id) { return document.getElementById(id); }
@@ -1293,7 +1296,7 @@ function desenharInicio() {
     if (e.pasta && p.texto) return '<button class="card feito" type="button" data-texto="' + p.id + '"><div class="foto">' + capaImg(p.id, '220px') + '</div><div class="corpo"><h3>' + esc(p.titulo) + '</h3><span class="sub">Bônus ' + (i + 1) + ' · ' + esc(p.sub) + '</span><div class="pe"><span class="acao">Abrir →</span></div></div></button>';
     if (e.pasta && p.embreve) return '<button class="card bloq" type="button" data-produto="' + p.id + '"><div class="foto">' + capaImg(p.id, '220px') + '</div><div class="corpo"><h3>' + esc(p.titulo) + '</h3><span class="sub">Bônus ' + (i + 1) + '</span><div class="pe"><span class="acao">Em breve</span></div></div></button>';
     if (e.pasta) return '<a class="card feito" href="#ler/' + p.id + '"><div class="foto">' + capaImg(p.id, '220px') + '</div><div class="corpo"><h3>' + esc(p.titulo) + '</h3><span class="sub">Bônus ' + (i + 1) + ' · ' + (LIVROS[p.id] ? LIVROS[p.id].paginas - 1 : '') + ' páginas</span><div class="pe"><span class="acao">Abrir →</span></div></div></a>';
-    return '<button class="card bloq" type="button" data-produto="' + p.id + '"><div class="foto">' + capaImg(p.id, '220px') + '<span class="tranca">' + ico('cadeado') + '</span></div><div class="corpo"><h3>' + esc(p.titulo) + '</h3><span class="sub">Bônus ' + (i + 1) + '</span><div class="pe"><span class="acao">Em breve</span></div></div></button>';
+    return '<button class="card bloq" type="button" data-produto="' + p.id + '"><div class="foto">' + capaImg(p.id, '220px') + '<span class="tranca">' + ico('cadeado') + '</span></div><div class="corpo"><h3>' + esc(p.titulo) + '</h3><span class="sub">Bônus ' + (i + 1) + '</span><div class="pe"><span class="acao">' + (tem('principal') ? 'Plano Completo' : 'Em breve') + '</span></div></div></button>';
   }).join('');
   $('c-bonus').textContent = temBonus ? '4 liberados' : '4 bônus';
 
